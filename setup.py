@@ -9,7 +9,7 @@ scripts = [f for f in glob.glob(os.path.join(__file__, "scripts/*.py")) if  f !=
 
 setup(
         name='androtoolbox',
-        version='0.1',
+        version='0.1.1',
         packages=['androtoolbox'],
         url='https://github.com/gregthedoe/androtoolbox',
         license='MIT',
