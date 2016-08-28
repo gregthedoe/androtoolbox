@@ -1,4 +1,4 @@
-from adb import adb
+from .adb import adb
 
 _LOG_TAG_PROPERTY = 'log.tag.{tag}'
 

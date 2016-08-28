@@ -1,6 +1,6 @@
 import attr
 import re
-from adb import adb
+from .adb import adb
 
 
 def _null_to_none(value):
