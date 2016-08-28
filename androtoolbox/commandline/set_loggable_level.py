@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse
 
 from androtoolbox.log import is_valid_log_level, set_loggable_level_for_tags
