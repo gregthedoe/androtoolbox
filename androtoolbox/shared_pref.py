@@ -1,12 +1,16 @@
+import tempfile
+
 import attr
 import lxml.etree as etree
 from collections import OrderedDict
+from .adb import adb
 
 _types_parsers = {
     'int': int,
     'long': long,
     'boolean': lambda val: val.lower() == 'true',
-    'string': unicode
+    'string': unicode,
+    'float': float,
 }
 
 _types_names = {
@@ -14,7 +18,8 @@ _types_names = {
     long: 'long',
     bool: 'boolean',
     str: 'string',
-    unicode: 'string'
+    unicode: 'string',
+    float: 'float'
 }
 
 
@@ -75,6 +80,12 @@ class SharedPref(object):
         else:
             return cls.from_xml(fileobj.read())
 
+    @classmethod
+    def from_device(cls, package, pref_name):
+        pref_device_path = build_shared_pref_path(package, pref_name)
+        data = adb.shell("cat %s" % pref_device_path, use_su=True)
+        return cls.from_xml(data)
+
     def to_xml(self):
         root = etree.Element('map')
         for name, value in self._prefs.iteritems():
@@ -89,6 +100,18 @@ class SharedPref(object):
         else:
             fileobj.write(xml)
             fileobj.flush()
+
+    def to_device(self, package, pref_name):
+        with tempfile.NamedTemporaryFile() as tmp_shared_file:
+            self.to_file(tmp_shared_file)
+            pref_device_path = build_shared_pref_path(package, pref_name)
+            local_path = tmp_shared_file.name
+            remote_tmp_path = "/data/local/tmp/%s" % os.path.basename(local_path)
+            adb.push(local_path, remote_tmp_path)
+            adb.shell('mv %s %s' % (remote_tmp_path, pref_device_path), use_su=True)
+
+            # We need to fix any permissions mix up
+            adb.shell('chmod 0777 %s' % pref_device_path, use_su=True)
 
     def __setitem__(self, key, value):
         if key in self._prefs:
