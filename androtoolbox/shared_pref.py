@@ -88,6 +88,7 @@ class SharedPref(object):
                 f.write(xml)
         else:
             fileobj.write(xml)
+            fileobj.flush()
 
     def __setitem__(self, key, value):
         if key in self._prefs:
