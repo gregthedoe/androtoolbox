@@ -71,5 +71,7 @@ class Adb(object):
     def set_property(self, name, value, use_su=False):
         self.shell('setprop %s %s' % (name, value), use_su)
 
+    def file_exists(self, filepath, use_su=False):
+        return self.shell('ls %s' % filepath, use_su=use_su).strip() == filepath
 
 adb = Adb()
