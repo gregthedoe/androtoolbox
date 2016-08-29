@@ -20,7 +20,7 @@ install_requires = [
 
 setup(
         name='androtoolbox',
-        version='0.1.3',
+        version='0.1.4',
         packages=find_packages(),
         url='https://github.com/gregthedoe/androtoolbox',
         license='MIT',
@@ -29,4 +29,9 @@ setup(
         description='A set of useful tools (or python wrappers) to work with android devices',
         install_requires=install_requires,
         entry_points={'console_scripts': console_scripts},
+        package_data={
+            'androtoolbox': [
+                          'device_tools/arm/*',
+                      ],
+        },
 )
