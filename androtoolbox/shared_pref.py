@@ -1,6 +1,6 @@
-from collections import OrderedDict
-
+import attr
 import lxml.etree as etree
+from collections import OrderedDict
 
 _types_parsers = {
     'int': int,
@@ -18,14 +18,20 @@ _types_names = {
 }
 
 
+@attr.s
+class PrefValue(object):
+    value = attr.ib()
+    type = attr.ib()
+
+
 def _get_pref_element_value(element):
-    value_type = element.tag
+    value_type_name = element.tag
     try:
         raw_value = element.attrib['value']
     except KeyError:
         raw_value = element.text or ''
-    value_parser = _types_parsers[value_type]
-    return value_parser(raw_value)
+    value_parser = _types_parsers[value_type_name]
+    return PrefValue(value_parser(raw_value), value_type_name)
 
 
 def _get_pref_element_name(element):
@@ -33,7 +39,8 @@ def _get_pref_element_name(element):
 
 
 def _to_pref_element(name, value, forced_type=None):
-    value_type = forced_type or _types_names[type(value)]
+    value_type = forced_type or value.type
+    value = value.value
     if value_type == 'string':
         element = etree.Element(value_type, name=name)
         element.text = value
@@ -42,13 +49,13 @@ def _to_pref_element(name, value, forced_type=None):
         return etree.Element(value_type, name=name, value=str(value).lower())
 
 
-class SharedPref(OrderedDict):
+class SharedPref(object):
     """
     A collection of shared preferences
     """
 
-    def __init__(self, mapping=None):
-        super(SharedPref, self).__init__(mapping or {})
+    def __init__(self):
+        self._prefs = OrderedDict()
 
     @classmethod
     def from_xml(cls, xml_data):
@@ -70,16 +77,39 @@ class SharedPref(OrderedDict):
 
     def to_xml(self):
         root = etree.Element('map')
-        for name, value in self.iteritems():
+        for name, value in self._prefs.iteritems():
             root.append(_to_pref_element(name, value))
         return etree.tostring(root, encoding='utf-8', pretty_print=True, xml_declaration=True)
 
     def to_file(self, fileobj):
+        xml = self.to_xml()
         if isinstance(fileobj, basestring):
             with open(fileobj, 'wb') as f:
-                f.write(self.to_xml())
+                f.write(xml)
         else:
-            fileobj.write(self.to_xml())
+            fileobj.write(xml)
+
+    def __setitem__(self, key, value):
+        if key in self._prefs:
+            self._prefs[key].value = value
+        else:
+            if not isinstance(value, PrefValue):
+                pref_type = _types_names[type(value)]
+                value = PrefValue(value, pref_type)
+            self._prefs[key] = value
+
+    def __getitem__(self, item):
+        return self._prefs[item].value
+
+    def __repr__(self):
+        return repr(self._prefs)
+
+    def __str__(self):
+        return self.to_xml()
+
+    def update(self, updates):
+        for k, v in updates.iteritems():
+            self[k] = v
 
 
 def build_shared_pref_path(package, pref_name):
