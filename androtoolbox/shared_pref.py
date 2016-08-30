@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 import attr
@@ -146,3 +147,13 @@ def build_shared_pref_path(package, pref_name):
     if pref_name.endswith('.xml'):
         pref_name = pref_name.rsplit('.')[0]
     return "/data/data/{package}/shared_prefs/{pref_name}.xml".format(package=package, pref_name=pref_name)
+
+
+def shared_prefs_for_package(package):
+    """
+    List all available shared preferences for a package
+    """
+    sp_glob_path = build_shared_pref_path(package, '*')
+    sp_paths = adb.shell('ls %s' % sp_glob_path, use_su=True).strip().split()
+    sp_names = [os.path.splitext(os.path.basename(db_path))[0] for db_path in sp_paths]
+    return sp_names

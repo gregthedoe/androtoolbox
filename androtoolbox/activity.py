@@ -18,7 +18,7 @@ class Intent(object):
     mime_type = attr.ib(default=None)
     category = attr.ib(default=None)
     component = attr.ib(default=None)
-    extras = attr.ib(default=dict)
+    extras = attr.ib(default=attr.Factory(dict))
     flags = attr.ib(default=None)
     grant_read_uri_permission = attr.ib(default=False)
     grant_write_uri_permission = attr.ib(default=False)

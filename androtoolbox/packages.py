@@ -120,22 +120,24 @@ def list_permissions(group=None):
     return permissions
 
 
-def disable_package(name):
+def disable_package(name, use_su=False):
     """
     Disable the given package or component.
 
     :param name: The package name or component (written as "package/class").
+    :param use_su: Do it with SU.
     """
     adb.shell('pm disable %s' % name)
 
 
-def enable_package(name):
+def enable_package(name, use_su=False):
     """
     Enable the given package or component.
 
     :param name: The package name or component (written as "package/class").
+    :param use_su: Do it with SU.
     """
-    adb.shell('pm enable %s' % name)
+    adb.shell('pm enable %s' % name, use_su=use_su)
 
 
 def clear_data(package):
