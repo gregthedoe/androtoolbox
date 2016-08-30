@@ -147,12 +147,30 @@ class KeyValueTable(object):
 
     def _insert_key(self, key, value):
         stmt = "insert into {table} ({key_name}, {value_name}) " \
-               "values ({key}, {value})".format(table=self.table, key_name=self._key, value_name=self._value,
+               "values ('{key}', '{value}')".format(table=self.table, key_name=self._key, value_name=self._value,
                                                 key=key, value=value)
         self.db.execute(stmt)
 
-    def __getattr__(self, item):
-        return getattr(self._get_all_as_dict(), item)
+    def items(self):
+        return self._get_all_as_dict().items()
+
+    def iteritems(self):
+        return self._get_all_as_dict().iteritems()
+
+    def keys(self):
+        return self._get_all_as_dict().keys()
+
+    def iterkeys(self):
+        return self._get_all_as_dict().iterkeys()
+
+    def values(self):
+        return self._get_all_as_dict().values()
+
+    def itervalues(self):
+        return self._get_all_as_dict().itervalues()
+
+    def __iter__(self):
+        return iter(self._get_all_as_dict())
 
     def items_by_pattern(self, key_pattern):
         """
