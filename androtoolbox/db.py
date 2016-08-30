@@ -163,3 +163,10 @@ class KeyValueTable(object):
         items = self._get_all_as_dict().items()
         filtered_items = [(k, v) for k, v in items if re.search(key_pattern, k)]
         return filtered_items
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
