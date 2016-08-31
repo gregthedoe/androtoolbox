@@ -4,6 +4,9 @@ import tempfile
 import attr
 import lxml.etree as etree
 from collections import OrderedDict
+
+import re
+
 from .adb import adb
 
 _types_parsers = {
@@ -131,6 +134,34 @@ class SharedPref(object):
 
     def __str__(self):
         return self.to_xml()
+
+    def keys(self):
+        return self._prefs.keys()
+
+    def items(self):
+        return self._prefs.items()
+
+    def values(self):
+        return self._prefs.values()
+
+    def __iter__(self):
+        return iter(self._prefs)
+
+    def iteritems(self):
+        return self._prefs.iteritems()
+
+    def iterkeys(self):
+        return self._prefs.iterkeys()
+
+    def items_by_pattern(self, key_pattern):
+        """
+        Get all items that their key matches a key pattern
+
+        :param key_pattern: The pattern to match
+        """
+        items = self.items()
+        filtered_items = [(k, v) for k, v in items if re.search(key_pattern, k)]
+        return filtered_items
 
     def update(self, updates):
         for k, v in updates.iteritems():
